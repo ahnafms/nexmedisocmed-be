@@ -27,5 +27,7 @@
     "vite-express": "*",
     "zod": "^3.24.2"
   },
+  "prisma": {
+    "schema": "src/database/prisma/schema.prisma"
   }
 }
