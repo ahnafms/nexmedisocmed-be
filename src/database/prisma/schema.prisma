@@ -15,7 +15,7 @@ datasource db {
 
 model User {
   id        String   @id @default(uuid())
-  name      String?  @db.VarChar(100)
+  name      String   @db.VarChar(100) @default("Unknown")
   email     String   @unique @db.VarChar(100)
   password  String   @db.VarChar(100)
   createdAt DateTime @default(now())

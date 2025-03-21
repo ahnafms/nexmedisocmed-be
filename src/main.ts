@@ -1,10 +1,14 @@
 import express from "express";
 import ViteExpress from "vite-express";
 
-const app = express();
+import { loggingMiddleware } from "@/middleware/logging.middleware";
 
-app.get("/hello", (_, res) => {
-  res.send("hello");
+const app = express();
+app.use(express.json());
+app.use(loggingMiddleware);
+
+app.get("/", (_, res) => {
+  res.send("Hello, World!");
 });
 
 ViteExpress.listen(app, 3000, () =>
