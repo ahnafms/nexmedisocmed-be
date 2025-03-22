@@ -12,19 +12,13 @@ export class UserController {
   public register = async (req: Request, res: Response, next: NextFunction) => {
     const { name, password, email } = req.body;
 
-    try {
-      const user = await this.userServices.createUser({
-        name,
-        password,
-        email,
-      });
+    const user = await this.userServices.createUser({
+      name,
+      password,
+      email,
+    });
 
-      res.status(HttpStatus.CREATED).json(user);
-    } catch (error) {
-      console.error(error);
-      res.status(HttpStatus.INTERNAL_SERVER_ERROR);
-      return next(error);
-    }
+    res.status(HttpStatus.CREATED).json(user);
   };
 
   public login = async (req: Request, res: Response, next: NextFunction) => {
