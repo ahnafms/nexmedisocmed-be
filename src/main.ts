@@ -5,11 +5,12 @@ import { loggingMiddleware } from "@/middleware/logging.middleware";
 import { userRouter } from "@/routes/user.route";
 import { errorInterceptor } from "./middleware/error.middleware";
 import { postRouter } from "./routes/post.routes";
-import { authMiddleware } from "./middleware/auth.middleware";
+import cors from "cors";
 
 const app = express();
 app.use(express.json());
 app.use(loggingMiddleware);
+app.use(cors());
 
 app.get("/", (_, res) => {
   res.send("Hello, World!");
