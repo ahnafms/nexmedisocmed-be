@@ -4,6 +4,8 @@ import ViteExpress from "vite-express";
 import { loggingMiddleware } from "@/middleware/logging.middleware";
 import { userRouter } from "@/routes/user.route";
 import { errorInterceptor } from "./middleware/error.middleware";
+import { postRouter } from "./routes/post.routes";
+import { authMiddleware } from "./middleware/auth.middleware";
 
 const app = express();
 app.use(express.json());
@@ -18,6 +20,8 @@ const apiRoutes: express.Router = express.Router();
 app.use("/api", apiRoutes);
 
 apiRoutes.use("/user", userRouter);
+
+apiRoutes.use("/posts", postRouter);
 
 app.use(errorInterceptor);
 
