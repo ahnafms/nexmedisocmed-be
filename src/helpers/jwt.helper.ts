@@ -12,11 +12,11 @@ export interface JwtPayload {
 }
 
 export const signAccessJwt = (data: JwtPayload) => {
-  return jwt.sign(data, secretKey, { expiresIn: "15m" });
+  return jwt.sign(data, secretKey, { expiresIn: "1d" });
 };
 
 export const signRefreshJwt = (data: JwtPayload) => {
-  return jwt.sign(data, secretRefreshKey, { expiresIn: "15m" });
+  return jwt.sign(data, secretRefreshKey, { expiresIn: "1d" });
 };
 
 export const verifyAccessJwt = (token: string): JwtPayload | null => {
