@@ -22,10 +22,6 @@ export const loginUserResponseDto = z.object({
     .string()
     .length(64)
     .regex(/^[a-fA-F0-9]{64}$/),
-  refresh_token: z
-    .string()
-    .length(64)
-    .regex(/^[a-fA-F0-9]{64}$/),
 });
 
 export const getUserDto = z.object({

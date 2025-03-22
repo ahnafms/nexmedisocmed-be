@@ -1,25 +1,26 @@
 import {
   CreateUserDto,
+  CreateUserResponseDto,
   GetUserDto,
   GetUserResponseDto,
   LoginUserDto,
   LoginUserResponseDto,
 } from "@/dto/user";
-import { PrismaService } from "../database/prisma.service";
+import { PrismaService } from "@/database/prisma.service";
 import { compare, hash } from "@/helpers/hash.helper";
 import { signAccessJwt } from "@/helpers/jwt.helper";
-import { TokenServices } from "./token.service";
+import createHttpError from "http-errors";
+import { Prisma } from "@prisma/client";
+import { prismaErrorHelper } from "@/helpers/prismaError.helper";
 
 export class UserServices {
   private prisma: PrismaService;
-  private tokenService: TokenServices;
 
-  constructor(tokenService: TokenServices = new TokenServices()) {
+  constructor() {
     this.prisma = PrismaService.getInstance();
-    this.tokenService = tokenService;
   }
 
-  public async createUser(data: CreateUserDto): Promise<GetUserResponseDto> {
+  public async createUser(data: CreateUserDto): Promise<CreateUserResponseDto> {
     try {
       const hashedPassword = await hash(data.password);
       const user = await this.prisma.user.create({
@@ -29,16 +30,21 @@ export class UserServices {
           password: hashedPassword,
         },
       });
-      return user;
+
+      const { password, createdAt, updatedAt, ...userWithoutPassword } = user;
+      return userWithoutPassword;
     } catch (error) {
-      throw error;
+      if (error instanceof Prisma.PrismaClientKnownRequestError) {
+        throw prismaErrorHelper(error);
+      }
+      throw createHttpError.InternalServerError("An unexpected error occurred");
     }
   }
 
   public async loginUser({
     email,
     password,
-  }: LoginUserDto): Promise<LoginUserResponseDto | null> {
+  }: LoginUserDto): Promise<LoginUserResponseDto> {
     try {
       const user = await this.prisma.user.findUnique({
         where: {
@@ -46,7 +52,8 @@ export class UserServices {
         },
       });
 
-      if (!user || !user.password) return null;
+      if (!user || !user.password)
+        throw createHttpError.Unauthorized("Invalid email or password");
 
       const isMatch = await compare(password, user.password);
 
@@ -55,17 +62,16 @@ export class UserServices {
           userId: user.id,
           email: user.email,
         });
-        const refreshToken = await this.tokenService.create({
-          userId: user.id,
-          email: user.email,
-        });
 
-        return { access_token: accessToken, refresh_token: refreshToken };
+        return { access_token: accessToken };
       }
 
-      return null;
+      throw createHttpError.Unauthorized("Invalid email or password");
     } catch (error) {
-      throw error;
+      if (error instanceof Prisma.PrismaClientKnownRequestError) {
+        throw prismaErrorHelper(error);
+      }
+      throw createHttpError.InternalServerError("An unexpected error occurred");
     }
   }
 
@@ -77,14 +83,17 @@ export class UserServices {
         },
       });
 
-      if (user) {
-        const { password, ...userWithoutPassword } = user;
-        return userWithoutPassword;
+      if (!user) {
+        return null;
       }
 
-      return null;
+      const { password, ...userWithoutPassword } = user;
+      return userWithoutPassword;
     } catch (error) {
-      throw error;
+      if (error instanceof Prisma.PrismaClientKnownRequestError) {
+        throw prismaErrorHelper(error);
+      }
+      throw createHttpError.InternalServerError("An unexpected error occurred");
     }
   }
 }

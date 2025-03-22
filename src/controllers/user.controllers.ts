@@ -12,34 +12,34 @@ export class UserController {
   public register = async (req: Request, res: Response, next: NextFunction) => {
     const { name, password, email } = req.body;
 
-    const user = await this.userServices.createUser({
-      name,
-      password,
-      email,
-    });
+    try {
+      const user = await this.userServices.createUser({
+        name,
+        password,
+        email,
+      });
 
-    res.status(HttpStatus.CREATED).json(user);
+      res.status(HttpStatus.CREATED).json({
+        message: "Success create user",
+        data: user,
+      });
+    } catch (error) {
+      next(error);
+    }
   };
 
   public login = async (req: Request, res: Response, next: NextFunction) => {
     const { password, email } = req.body;
 
     try {
-      const user = await this.userServices.loginUser({
+      const token = await this.userServices.loginUser({
         email,
         password,
       });
 
-      if (!user) {
-        return res
-          .status(HttpStatus.NOT_FOUND)
-          .json({ message: "User not found" });
-      }
-
-      return res.status(HttpStatus.OK).json(user);
+      res.status(HttpStatus.OK).json({ message: "Success login", data: token });
     } catch (error) {
-      res.status(HttpStatus.INTERNAL_SERVER_ERROR);
-      return next(error);
+      next(error);
     }
   };
 }
