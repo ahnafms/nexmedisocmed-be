@@ -52,9 +52,7 @@ const PRISMA_ERROR_MAP: Record<
   P2033: { status: 503 },
 };
 
-export const prismaErrorHelper = (
-  error: Prisma.PrismaClientKnownRequestError,
-) => {
+export const prismaError = (error: Prisma.PrismaClientKnownRequestError) => {
   const errorConfig = PRISMA_ERROR_MAP[error.code] || {
     status: 500,
   };

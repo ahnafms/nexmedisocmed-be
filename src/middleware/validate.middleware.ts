@@ -3,9 +3,10 @@ import z from "zod";
 import HttpStatus from "http-status-codes";
 
 export const validate =
-  (schema: z.ZodSchema) =>
+  (schema: z.ZodSchema, input: "body" | "params" | "query" = "body") =>
   (req: Request, res: Response, next: NextFunction) => {
-    const result = schema.safeParse(req.body);
+    console.log(req["body"]);
+    const result = schema.safeParse(req[input]);
     if (!result.success) {
       const errors = result.error.errors.map(({ path, message }) => ({
         path,

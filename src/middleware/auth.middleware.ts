@@ -1,9 +1,10 @@
 import { verifyAccessJwt } from "@/helpers/jwt.helper";
 import { NextFunction, Request, Response } from "express";
 import HttpStatus from "http-status-codes";
+import createHttpError from "http-errors";
 
 export interface AuthenticatedUser extends Request {
-  userId?: string;
+  userId: string;
 }
 
 export const authMiddleware = (
@@ -11,22 +12,14 @@ export const authMiddleware = (
   res: Response,
   next: NextFunction,
 ) => {
-  const token = req.headers.authorization?.split(" ");
+  const token = req.cookies.token;
 
   if (!token) {
-    return res
-      .status(HttpStatus.UNAUTHORIZED)
-      .json({ message: "Unauthorized" });
-  }
-
-  if (token[0] != "Bearer" && token[1]) {
-    return res
-      .status(HttpStatus.UNAUTHORIZED)
-      .json({ message: "Invalid token" });
+    throw createHttpError(HttpStatus.UNAUTHORIZED, "Unauthorized");
   }
 
   try {
-    const decoded = verifyAccessJwt(token[1]);
+    const decoded = verifyAccessJwt(token);
     if (!decoded) {
       return res
         .status(HttpStatus.UNAUTHORIZED)
@@ -37,7 +30,6 @@ export const authMiddleware = (
 
     next();
   } catch (error) {
-    res.status(HttpStatus.UNAUTHORIZED).json({ message: "Invalid token" });
-    return next(error);
+    throw createHttpError(HttpStatus.UNAUTHORIZED, "Unauthorized");
   }
 };

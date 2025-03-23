@@ -3,7 +3,8 @@ export type Post = {
   title: string;
   content: string;
   user: { id: string; username: string };
-  likes: { id: string; userId: string }[];
+  likes: boolean;
+  likes_count: number;
   createdAt: Date;
   updatedAt: Date;
 };

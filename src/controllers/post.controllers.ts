@@ -1,6 +1,6 @@
 import { AuthenticatedUser } from "@/middleware/auth.middleware";
 import { PostServices } from "@/services/post.service";
-import { Response } from "express";
+import { NextFunction, Response } from "express";
 import HttpStatus from "http-status-codes";
 
 export class PostController {
@@ -10,39 +10,92 @@ export class PostController {
     this.postServices = postServices;
   }
 
-  public createPost = async (req: AuthenticatedUser, res: Response) => {
+  public createPost = async (
+    req: AuthenticatedUser,
+    res: Response,
+    next: NextFunction,
+  ) => {
     try {
       const result = await this.postServices.createPost({
         userId: req.userId,
+        file: req.file,
         ...req.body,
       });
-      return res.status(HttpStatus.CREATED).json(result);
+      res
+        .status(HttpStatus.CREATED)
+        .json({ message: "success create post", data: result });
     } catch (err) {
-      throw err;
+      next(err);
     }
   };
 
-  public getPost = async (req: AuthenticatedUser, res: Response) => {
+  public getPost = async (
+    req: AuthenticatedUser,
+    res: Response,
+    next: NextFunction,
+  ) => {
     try {
       const result = await this.postServices.getPost({
-        ...req.body,
+        id: req.params.id,
       });
-      return res.status(HttpStatus.OK).json(result);
+      res.status(HttpStatus.OK).json(result);
     } catch (err) {
-      throw err;
+      next(err);
     }
   };
 
-  public getPosts = async (req: AuthenticatedUser, res: Response) => {
+  public getPosts = async (
+    req: AuthenticatedUser,
+    res: Response,
+    next: NextFunction,
+  ) => {
     const { limit, page } = req.query;
     try {
       const result = await this.postServices.getPosts(req, {
         limit: Number(limit) || 10,
         page: Number(page) || 1,
       });
-      return res.status(HttpStatus.OK).json(result);
+      res
+        .status(HttpStatus.OK)
+        .json({ message: "success get posts", data: result });
     } catch (err) {
-      throw err;
+      next(err);
+    }
+  };
+
+  public likePost = async (
+    req: AuthenticatedUser,
+    res: Response,
+    next: NextFunction,
+  ) => {
+    try {
+      const result = await this.postServices.likePost({
+        userId: req.userId,
+        id: req.params.id,
+      });
+      res
+        .status(HttpStatus.OK)
+        .json({ message: "success like post", data: result });
+    } catch (err) {
+      next(err);
+    }
+  };
+
+  public unlikePost = async (
+    req: AuthenticatedUser,
+    res: Response,
+    next: NextFunction,
+  ) => {
+    try {
+      const result = await this.postServices.unlikePost({
+        userId: req.userId,
+        id: req.params.id,
+      });
+      res
+        .status(HttpStatus.OK)
+        .json({ message: "success unlike post", data: result });
+    } catch (err) {
+      next(err);
     }
   };
 }

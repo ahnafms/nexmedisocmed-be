@@ -8,9 +8,16 @@ import {
   CreatePostAuthenticatedResponseDto,
   GetPostDto,
   GetPostResponseDto,
+  LikePostServiceDto,
+  UnlikePostDto,
 } from "@/dto/post";
 import { getPaginationUrl } from "@/helpers/pagination.helper";
-import { Request } from "express";
+import { prismaError } from "@/helpers/prismaError.helper";
+import createHttpError from "http-errors";
+import { Prisma } from "@prisma/client";
+import { AuthenticatedUser } from "@/middleware/auth.middleware";
+import { UploadFileServices } from "./upload-file.services";
+import { Post } from "@/entities/post.entities";
 
 export class PostServices {
   private prisma: PrismaService;
@@ -23,23 +30,34 @@ export class PostServices {
     data: CreatePostAuthenticatedDto,
   ): Promise<CreatePostAuthenticatedResponseDto> {
     try {
+      let imageUrl: string | null = null;
+
+      if (data.file) {
+        const uploadResult = await UploadFileServices.uploadFile(data.file);
+        imageUrl = uploadResult.url;
+      }
       const res = await this.prisma.post.create({
         data: {
           userId: data.userId,
           title: data.title,
           content: data.content,
+          image: imageUrl,
         },
       });
 
       const formattedRes = { ...res, likes: 0 };
 
       return formattedRes;
-    } catch (err) {
-      throw err;
+    } catch (error) {
+      console.error(error);
+      if (error instanceof Prisma.PrismaClientKnownRequestError) {
+        throw prismaError(error);
+      }
+      throw createHttpError.InternalServerError("An unexpected error occurred");
     }
   }
 
-  public async getPost(id: GetPostDto): Promise<GetPostResponseDto> {
+  public async getPost({ id }: GetPostDto): Promise<GetPostResponseDto> {
     try {
       const res = await this.prisma.post.findUniqueOrThrow({
         where: {
@@ -59,18 +77,21 @@ export class PostServices {
           },
         },
       });
-
-      const { _count, ...rest } = res;
-      const formattedRes = { ...rest, likes: _count.likes };
-
+      const formattedRes = {
+        ...res,
+        likes: res._count.likes > 0 ? true : false,
+      };
       return formattedRes;
-    } catch (err) {
-      throw err;
+    } catch (error) {
+      if (error instanceof Prisma.PrismaClientKnownRequestError) {
+        throw prismaError(error);
+      }
+      throw createHttpError.InternalServerError("An unexpected error occurred");
     }
   }
 
   public async getPosts(
-    request: Request,
+    request: AuthenticatedUser,
     params: PaginationDto,
   ): Promise<PaginationResponseDto<GetPostResponseDto>> {
     try {
@@ -82,15 +103,17 @@ export class PostServices {
           content: true,
           createdAt: true,
           updatedAt: true,
+          likes_count: true,
+          image: true,
           user: {
             select: {
               id: true,
               name: true,
             },
           },
-          _count: {
-            select: {
-              likes: true,
+          likes: {
+            where: {
+              userId: request.userId,
             },
           },
         },
@@ -99,10 +122,10 @@ export class PostServices {
       });
 
       const formattedRes = {
-        data: res.map((post) => {
-          const { _count, ...rest } = post;
-          return { ...rest, likes: _count.likes };
-        }),
+        results: res.map((post) => ({
+          ...post,
+          likes: post.likes.length > 0 ? true : false,
+        })),
         total: totalPosts,
         next: getPaginationUrl(
           request,
@@ -117,8 +140,63 @@ export class PostServices {
       };
 
       return formattedRes;
-    } catch (err) {
-      throw err;
+    } catch (error) {
+      if (error instanceof Prisma.PrismaClientKnownRequestError) {
+        throw prismaError(error);
+      }
+      throw createHttpError.InternalServerError("An unexpected error occurred");
+    }
+  }
+
+  public async likePost(data: LikePostServiceDto): Promise<Post> {
+    try {
+      return await this.prisma.$transaction(async (tx) => {
+        const res = await tx.like.create({
+          data: {
+            userId: data.userId,
+            postId: data.id,
+          },
+        });
+
+        await tx.post.update({
+          where: { id: data.id },
+          data: { likes_count: { increment: 1 } },
+        });
+
+        return res;
+      });
+    } catch (error) {
+      if (error instanceof Prisma.PrismaClientKnownRequestError) {
+        throw prismaError(error);
+      }
+      throw createHttpError.InternalServerError("An unexpected error occurred");
+    }
+  }
+
+  public async unlikePost(data: UnlikePostDto): Promise<UnlikePostDto> {
+    try {
+      return await this.prisma.$transaction(async (tx) => {
+        const res = await tx.like.delete({
+          where: {
+            postId_userId: {
+              userId: data.userId,
+              postId: data.id,
+            },
+          },
+        });
+
+        await tx.post.update({
+          where: { id: data.id },
+          data: { likes_count: { decrement: 1 } },
+        });
+
+        return res;
+      });
+    } catch (error) {
+      if (error instanceof Prisma.PrismaClientKnownRequestError) {
+        throw prismaError(error);
+      }
+      throw createHttpError.InternalServerError("An unexpected error occurred");
     }
   }
 }

@@ -37,7 +37,13 @@ export class UserController {
         password,
       });
 
-      res.status(HttpStatus.OK).json({ message: "Success login", data: token });
+      res.cookie("token", token.access_token, {
+        maxAge: 3600000,
+        httpOnly: true,
+        sameSite: "lax",
+      });
+
+      res.status(HttpStatus.OK).json({ message: "Success login" });
     } catch (error) {
       next(error);
     }
