@@ -11,7 +11,6 @@ import {
   LikePostServiceDto,
   UnlikePostDto,
 } from "@/dto/post";
-import { getPaginationUrl } from "@/helpers/pagination.helper";
 import { prismaError } from "@/helpers/prismaError.helper";
 import createHttpError from "http-errors";
 import { Prisma } from "@prisma/client";
@@ -127,16 +126,8 @@ export class PostServices {
           likes: post.likes.length > 0 ? true : false,
         })),
         total: totalPosts,
-        next: getPaginationUrl(
-          request,
-          params.page < totalPosts / params.limit ? params.page + 1 : null,
-          params.limit,
-        ),
-        previous: getPaginationUrl(
-          request,
-          params.page > 1 ? params.page - 1 : null,
-          params.limit,
-        ),
+        next: params.page < totalPosts / params.limit ? params.page + 1 : null,
+        previous: params.page > 1 ? params.page - 1 : null,
       };
 
       return formattedRes;

@@ -9,6 +9,6 @@ export const paginationResponseDto = <T>(schema: z.ZodType<T>) =>
   z.object({
     results: z.array(schema),
     total: z.number(),
-    next: z.string().nullable(),
-    previous: z.string().nullable(),
+    next: z.number().nullable(),
+    previous: z.number().nullable(),
   });

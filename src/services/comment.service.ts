@@ -1,10 +1,8 @@
 import { PrismaService } from "@/database/prisma.service";
 import { CreatePostCommentServiceDto } from "@/dto/comment";
 import { PaginationDto } from "@/dto/pagination";
-import { getPaginationUrl } from "@/helpers/pagination.helper";
 import { prismaError } from "@/helpers/prismaError.helper";
 import { Prisma } from "@prisma/client";
-import { Request } from "express";
 import createHttpError from "http-errors";
 
 export class CommentServices {
@@ -38,11 +36,7 @@ export class CommentServices {
     }
   }
 
-  public async getPostComments(
-    request: Request,
-    postId: string,
-    params: PaginationDto,
-  ) {
+  public async getPostComments(postId: string, params: PaginationDto) {
     try {
       const [comments, totalComments] = await Promise.all([
         this.prisma.comment.findMany({
@@ -73,16 +67,9 @@ export class CommentServices {
       const formattedRes = {
         results: comments,
         total: totalComments,
-        next: getPaginationUrl(
-          request,
+        next:
           params.page < totalComments / params.limit ? params.page + 1 : null,
-          params.limit,
-        ),
-        previous: getPaginationUrl(
-          request,
-          params.page > 1 ? params.page - 1 : null,
-          params.limit,
-        ),
+        previous: params.page > 1 ? params.page - 1 : null,
       };
 
       return formattedRes;

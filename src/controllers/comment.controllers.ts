@@ -35,14 +35,10 @@ export class CommentController {
   ) => {
     const { limit, page } = req.query;
     try {
-      const result = await this.commentServices.getPostComments(
-        req,
-        req.params.id,
-        {
-          limit: Number(limit) || 10,
-          page: Number(page) || 1,
-        },
-      );
+      const result = await this.commentServices.getPostComments(req.params.id, {
+        limit: Number(limit) || 10,
+        page: Number(page) || 1,
+      });
       res
         .status(HttpStatus.OK)
         .json({ message: "success get comments", data: result });
