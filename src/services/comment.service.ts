@@ -54,6 +54,9 @@ export class CommentServices {
             },
             createdAt: true,
           },
+          orderBy: {
+            createdAt: "asc",
+          },
           skip: params.limit * (params.page - 1),
           take: params.limit,
         }),

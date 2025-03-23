@@ -116,6 +116,9 @@ export class PostServices {
             },
           },
         },
+        orderBy: {
+          createdAt: "desc",
+        },
         skip: params.limit * (params.page - 1),
         take: params.limit,
       });
