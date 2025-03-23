@@ -48,4 +48,18 @@ export class UserController {
       next(error);
     }
   };
+
+  public logout = async (_: any, res: Response) => {
+    return res
+      .clearCookie("token", {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === "production",
+        sameSite: "lax",
+      })
+      .json({ message: "Success logout" });
+  };
+
+  public checkAuth = async (_: any, res: Response) => {
+    return res.status(HttpStatus.OK).json({ message: "Success check auth" });
+  };
 }

@@ -12,6 +12,7 @@ import { signAccessJwt } from "@/helpers/jwt.helper";
 import createHttpError from "http-errors";
 import { Prisma } from "@prisma/client";
 import { prismaError } from "@/helpers/prismaError.helper";
+import { Response } from "express";
 
 export class UserServices {
   private prisma: PrismaService;
@@ -73,6 +74,16 @@ export class UserServices {
       }
       throw createHttpError.InternalServerError("An unexpected error occurred");
     }
+  }
+
+  public async logoutUser(res: Response): Promise<{ message: string }> {
+    res.clearCookie("token", {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "strict",
+    });
+
+    return { message: "Logout successful" };
   }
 
   public async getUser(data: GetUserDto): Promise<GetUserResponseDto | null> {
