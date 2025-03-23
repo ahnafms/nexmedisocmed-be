@@ -6,7 +6,8 @@
   "scripts": {
     "dev": "nodemon -w src -x tsx src/main.ts",
     "start": "NODE_ENV=production tsx src/main.ts",
-    "build": "tsc"
+    "vercel-build": "prisma generate && prisma migrate deploy",
+    "build": "tsc && resolve-tspaths"
   },
   "devDependencies": {
     "@types/bcrypt": "^5.0.2",
@@ -19,6 +20,8 @@
     "@types/node": "^20.9.3",
     "nodemon": "^3.0.1",
     "prisma": "^6.5.0",
+    "resolve-tspaths": "^0.8.23",
+    "tsc-alias": "^1.8.11",
     "vite": "^5.0.2"
   },
   "dependencies": {
