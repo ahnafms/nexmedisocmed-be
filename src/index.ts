@@ -18,7 +18,7 @@ app.use(loggingMiddleware);
 app.use(
   cors({
     credentials: true,
-    origin: "http://localhost:5173",
+    origin: process.env.APP_FE_ORIGIN || "http://localhost:5173",
   }),
 );
 
