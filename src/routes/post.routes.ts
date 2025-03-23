@@ -4,7 +4,6 @@ import { Router } from "express";
 import { createPostDto, getPostDto, likePostControllerDto } from "@/dto/post";
 import { authMiddleware } from "@/middleware/auth.middleware";
 import { paginationDto } from "@/dto/pagination/pagination.dto";
-import { UploadFileServices } from "@/services/upload-file.services";
 import multer from "multer";
 
 export const postRouter = Router();

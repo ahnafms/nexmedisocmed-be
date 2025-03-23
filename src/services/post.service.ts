@@ -15,9 +15,9 @@ import { getPaginationUrl } from "@/helpers/pagination.helper";
 import { prismaError } from "@/helpers/prismaError.helper";
 import createHttpError from "http-errors";
 import { Prisma } from "@prisma/client";
-import { AuthenticatedUser } from "@/middleware/auth.middleware";
 import { UploadFileServices } from "./upload-file.services";
-import { Post } from "@/entities/post.entities";
+import { LikePost } from "@/entities/like.entities";
+import { Request } from "express";
 
 export class PostServices {
   private prisma: PrismaService;
@@ -91,7 +91,7 @@ export class PostServices {
   }
 
   public async getPosts(
-    request: AuthenticatedUser,
+    request: Request,
     params: PaginationDto,
   ): Promise<PaginationResponseDto<GetPostResponseDto>> {
     try {
@@ -148,7 +148,7 @@ export class PostServices {
     }
   }
 
-  public async likePost(data: LikePostServiceDto): Promise<Post> {
+  public async likePost(data: LikePostServiceDto): Promise<LikePost> {
     try {
       return await this.prisma.$transaction(async (tx) => {
         const res = await tx.like.create({
@@ -173,7 +173,7 @@ export class PostServices {
     }
   }
 
-  public async unlikePost(data: UnlikePostDto): Promise<UnlikePostDto> {
+  public async unlikePost(data: UnlikePostDto): Promise<LikePost> {
     try {
       return await this.prisma.$transaction(async (tx) => {
         const res = await tx.like.delete({

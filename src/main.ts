@@ -11,6 +11,9 @@ import { commentRouter } from "./routes/comment.routes";
 import bodyParser from "body-parser";
 
 const app = express();
+
+ViteExpress.config({ mode: process.env.NODE_ENV || "development" });
+
 app.use(express.json());
 app.use(cookieParser());
 app.use(bodyParser.urlencoded({ extended: true }));

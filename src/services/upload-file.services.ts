@@ -13,13 +13,11 @@ export class UploadFileServices {
         throw new Error("No file uploaded");
       }
 
-      // Upload to ImageKit
       const result = await this.imagekit.upload({
-        file: file.buffer, // File data in memory
-        fileName: file.originalname, // Use original filename
+        file: file.buffer,
+        fileName: file.originalname,
       });
 
-      // Explicitly remove file reference for safety (optional)
       file.buffer = null as any;
 
       return result;

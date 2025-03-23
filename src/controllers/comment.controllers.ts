@@ -1,6 +1,5 @@
-import { AuthenticatedUser } from "@/middleware/auth.middleware";
 import { CommentServices } from "@/services/comment.service";
-import { NextFunction, Response } from "express";
+import { NextFunction, Request, Response } from "express";
 import HttpStatus from "http-status-codes";
 
 export class CommentController {
@@ -11,7 +10,7 @@ export class CommentController {
   }
 
   public createPostComment = async (
-    req: AuthenticatedUser,
+    req: Request,
     res: Response,
     next: NextFunction,
   ) => {
@@ -30,7 +29,7 @@ export class CommentController {
   };
 
   public getPostComment = async (
-    req: AuthenticatedUser,
+    req: Request,
     res: Response,
     next: NextFunction,
   ) => {

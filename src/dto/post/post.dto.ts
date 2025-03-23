@@ -1,8 +1,5 @@
 import { z } from "zod";
 
-const MAX_FILE_SIZE = 1024 * 1024; // 1MB
-const ACCEPTED_IMAGE_TYPES = [".jpg", ".jpeg", ".png", ".webp"];
-
 export const createPostDto = z.object({
   title: z.string().min(5).max(100),
   content: z.string(),

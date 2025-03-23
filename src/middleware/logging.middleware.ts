@@ -1,8 +1,8 @@
 import { Request, Response } from "express";
-import morgan from "morgan";
+import morgan, { TokenIndexer } from "morgan";
 
 export const loggingMiddleware = morgan(function (
-  tokens: morgan.TokenIndexer,
+  tokens: TokenIndexer<Request, Response>,
   req: Request,
   res: Response,
 ) {

@@ -5,7 +5,6 @@ import HttpStatus from "http-status-codes";
 export const validate =
   (schema: z.ZodSchema, input: "body" | "params" | "query" = "body") =>
   (req: Request, res: Response, next: NextFunction) => {
-    console.log(req["body"]);
     const result = schema.safeParse(req[input]);
     if (!result.success) {
       const errors = result.error.errors.map(({ path, message }) => ({

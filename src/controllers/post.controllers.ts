@@ -1,4 +1,4 @@
-import { AuthenticatedUser } from "@/middleware/auth.middleware";
+import { Request } from "express";
 import { PostServices } from "@/services/post.service";
 import { NextFunction, Response } from "express";
 import HttpStatus from "http-status-codes";
@@ -11,7 +11,7 @@ export class PostController {
   }
 
   public createPost = async (
-    req: AuthenticatedUser,
+    req: Request,
     res: Response,
     next: NextFunction,
   ) => {
@@ -29,11 +29,7 @@ export class PostController {
     }
   };
 
-  public getPost = async (
-    req: AuthenticatedUser,
-    res: Response,
-    next: NextFunction,
-  ) => {
+  public getPost = async (req: Request, res: Response, next: NextFunction) => {
     try {
       const result = await this.postServices.getPost({
         id: req.params.id,
@@ -44,11 +40,7 @@ export class PostController {
     }
   };
 
-  public getPosts = async (
-    req: AuthenticatedUser,
-    res: Response,
-    next: NextFunction,
-  ) => {
+  public getPosts = async (req: Request, res: Response, next: NextFunction) => {
     const { limit, page } = req.query;
     try {
       const result = await this.postServices.getPosts(req, {
@@ -63,14 +55,10 @@ export class PostController {
     }
   };
 
-  public likePost = async (
-    req: AuthenticatedUser,
-    res: Response,
-    next: NextFunction,
-  ) => {
+  public likePost = async (req: Request, res: Response, next: NextFunction) => {
     try {
       const result = await this.postServices.likePost({
-        userId: req.userId,
+        userId: req.userId as string,
         id: req.params.id,
       });
       res
@@ -82,13 +70,13 @@ export class PostController {
   };
 
   public unlikePost = async (
-    req: AuthenticatedUser,
+    req: Request,
     res: Response,
     next: NextFunction,
   ) => {
     try {
       const result = await this.postServices.unlikePost({
-        userId: req.userId,
+        userId: req.userId as string,
         id: req.params.id,
       });
       res

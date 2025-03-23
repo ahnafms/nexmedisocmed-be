@@ -11,7 +11,7 @@ import { compare, hash } from "@/helpers/hash.helper";
 import { signAccessJwt } from "@/helpers/jwt.helper";
 import createHttpError from "http-errors";
 import { Prisma } from "@prisma/client";
-import { prismaErrorHelper } from "@/helpers/prismaError.helper";
+import { prismaError } from "@/helpers/prismaError.helper";
 
 export class UserServices {
   private prisma: PrismaService;
@@ -35,7 +35,7 @@ export class UserServices {
       return userWithoutPassword;
     } catch (error) {
       if (error instanceof Prisma.PrismaClientKnownRequestError) {
-        throw prismaErrorHelper(error);
+        throw prismaError(error);
       }
       throw createHttpError.InternalServerError("An unexpected error occurred");
     }
@@ -69,7 +69,7 @@ export class UserServices {
       throw createHttpError.Unauthorized("Invalid email or password");
     } catch (error) {
       if (error instanceof Prisma.PrismaClientKnownRequestError) {
-        throw prismaErrorHelper(error);
+        throw prismaError(error);
       }
       throw createHttpError.InternalServerError("An unexpected error occurred");
     }
@@ -91,7 +91,7 @@ export class UserServices {
       return userWithoutPassword;
     } catch (error) {
       if (error instanceof Prisma.PrismaClientKnownRequestError) {
-        throw prismaErrorHelper(error);
+        throw prismaError(error);
       }
       throw createHttpError.InternalServerError("An unexpected error occurred");
     }

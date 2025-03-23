@@ -1,10 +1,10 @@
-import { NextFunction, Request, Response } from "express";
+import { NextFunction, Response } from "express";
 import createHttpError from "http-errors";
 import HttpStatus from "http-status-codes";
 
 export const errorInterceptor = (
   err: any,
-  req: Request,
+  _: any,
   res: Response,
   next: NextFunction,
 ) => {
