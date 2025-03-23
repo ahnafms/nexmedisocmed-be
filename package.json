@@ -4,9 +4,15 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
-    "dev": "nodemon -w src -x tsx src/main.ts",
-    "start": "NODE_ENV=production tsx src/main.ts",
+    "dev": "nodemon -w src -x tsx src/index.ts",
+    "start": "NODE_ENV=production node dist/index.js",
     "vercel-build": "prisma generate && prisma migrate deploy",
+    "prisma:generate": "npx prisma generate",
+    "prisma:generate:host": "DB_HOST=localhost npx prisma generate",
+    "db:push": "npx prisma db push",
+    "db:push:host": "DB_HOST=localhost npx prisma db push",
+    "migrate-dev": "npx prisma migrate dev",
+    "migrate-dev:host": "DB_HOST=localhost npx prisma migrate dev",
     "build": "tsc && resolve-tspaths"
   },
   "devDependencies": {

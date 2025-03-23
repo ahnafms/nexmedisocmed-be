@@ -3,14 +3,9 @@
   "buildCommand": "npm run vercel-build && vercel build",
   "builds": [
     {
-      "src": "index.js",
+      "src": "dist/index.js",
       "use": "@vercel/node"
     }
   ],
-  "routes": [
-    {
-      "src": "/(.*)",
-      "dest": "index.js"
-    }
-  ]
+  "rewrites": [{ "source": "/(.*)", "destination": "/dist" }]
 }
