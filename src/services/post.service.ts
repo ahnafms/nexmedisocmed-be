@@ -48,7 +48,6 @@ export class PostServices {
 
       return formattedRes;
     } catch (error) {
-      console.error(error);
       if (error instanceof Prisma.PrismaClientKnownRequestError) {
         throw prismaError(error);
       }
@@ -94,37 +93,44 @@ export class PostServices {
     params: PaginationDto,
   ): Promise<PaginationResponseDto<GetPostResponseDto>> {
     try {
-      const totalPosts = await this.prisma.post.count();
-      const res = await this.prisma.post.findMany({
-        select: {
-          id: true,
-          title: true,
-          content: true,
-          createdAt: true,
-          updatedAt: true,
-          likes_count: true,
-          image: true,
-          user: {
+      const { posts, totalPosts } = await this.prisma.$transaction(
+        async (tx) => {
+          const totalPosts = await tx.post.count();
+
+          const posts = await tx.post.findMany({
             select: {
               id: true,
-              name: true,
+              title: true,
+              content: true,
+              createdAt: true,
+              updatedAt: true,
+              likes_count: true,
+              image: true,
+              user: {
+                select: {
+                  id: true,
+                  name: true,
+                },
+              },
+              likes: {
+                where: {
+                  userId: request.userId,
+                },
+              },
             },
-          },
-          likes: {
-            where: {
-              userId: request.userId,
+            orderBy: {
+              createdAt: "desc",
             },
-          },
+            skip: params.limit * (params.page - 1),
+            take: params.limit,
+          });
+
+          return { posts, totalPosts };
         },
-        orderBy: {
-          createdAt: "desc",
-        },
-        skip: params.limit * (params.page - 1),
-        take: params.limit,
-      });
+      );
 
       const formattedRes = {
-        results: res.map((post) => ({
+        results: posts.map((post) => ({
           ...post,
           likes: post.likes.length > 0 ? true : false,
         })),

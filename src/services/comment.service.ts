@@ -38,34 +38,39 @@ export class CommentServices {
 
   public async getPostComments(postId: string, params: PaginationDto) {
     try {
-      const [comments, totalComments] = await Promise.all([
-        this.prisma.comment.findMany({
-          where: {
-            postId,
-          },
-          select: {
-            id: true,
-            content: true,
-            user: {
-              select: {
-                id: true,
-                name: true,
-              },
+      const { comments, totalComments } = await this.prisma.$transaction(
+        async (tx) => {
+          const comments = await tx.comment.findMany({
+            where: {
+              postId,
             },
-            createdAt: true,
-          },
-          orderBy: {
-            createdAt: "asc",
-          },
-          skip: params.limit * (params.page - 1),
-          take: params.limit,
-        }),
-        this.prisma.comment.count({
-          where: {
-            postId,
-          },
-        }),
-      ]);
+            select: {
+              id: true,
+              content: true,
+              user: {
+                select: {
+                  id: true,
+                  name: true,
+                },
+              },
+              createdAt: true,
+            },
+            orderBy: {
+              createdAt: "asc",
+            },
+            skip: params.limit * (params.page - 1),
+            take: params.limit,
+          });
+
+          const totalComments = await tx.comment.count({
+            where: {
+              postId,
+            },
+          });
+
+          return { comments, totalComments };
+        },
+      );
 
       const formattedRes = {
         results: comments,
@@ -77,6 +82,7 @@ export class CommentServices {
 
       return formattedRes;
     } catch (error) {
+      console.error(error);
       if (error instanceof Prisma.PrismaClientKnownRequestError) {
         throw prismaError(error);
       }
