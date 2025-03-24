@@ -39,11 +39,12 @@ export class UserController {
 
       res.cookie("token", token.access_token, {
         maxAge: 3600000,
-        httpOnly: true,
         sameSite: "lax",
       });
 
-      res.status(HttpStatus.OK).json({ message: "Success login" });
+      res
+        .status(HttpStatus.OK)
+        .json({ message: "Success login", access_token: token.access_token });
     } catch (error) {
       next(error);
     }
